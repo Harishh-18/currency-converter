@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Converter</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .converter-container {
+      position: relative;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 50px 40px;
+      border-radius: 25px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(20px);
+      text-align: center;
+      width: 420px;
+      max-width: 90%;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: #fff;
+      margin-bottom: 30px;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+    }
+
+    .converter-container input,
+    .converter-container select {
+      width: 90%;
+      padding: 18px;
+      margin: 15px 0;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      font-size: 1.2rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .converter-container input:focus,
+    .converter-container select:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 12px #ffd700;
+    }
+
+    .converter-container button {
+      width: 90%;
+      padding: 18px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ffd700, #ffb400);
+      color: #000;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .converter-container button:hover {
+      background: linear-gradient(135deg, #ffb400, #ffd700);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .result {
+      margin-top: 25px;
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .currency-symbol-bg {
+      position: absolute;
+      color: rgba(255, 215, 0, 0.1);
+      font-size: 40px;
+      animation: float 8s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="currencyBackground"></div>
+  <div class="converter-container">
+    <h1>💱 Currency Converter</h1>
+    <form id="currencyForm">
+      <input type="number" id="amount" placeholder="Enter amount" required>
+      <select id="fromCurrency">
+        <option value="USD">🇺🇸 USD</option>
+        <option value="INR" selected>🇮🇳 INR</option>
+        <option value="EUR">🇪🇺 EUR</option>
+        <option value="GBP">🇬🇧 GBP</option>
+        <option value="JPY">🇯🇵 JPY</option>
+        <option value="AUD">🇦🇺 AUD</option>
+        <option value="CAD">🇨🇦 CAD</option>
+        <option value="CNY">🇨🇳 CNY</option>
+        <option value="CHF">🇨🇭 CHF</option>
+        <option value="NZD">🇳🇿 NZD</option>
+      </select>
+      <select id="toCurrency">
+        <option value="USD">🇺🇸 USD</option>
+        <option value="INR">🇮🇳 INR</option>
+        <option value="EUR" selected>🇪🇺 EUR</option>
+        <option value="GBP">🇬🇧 GBP</option>
+        <option value="JPY">🇯🇵 JPY</option>
+        <option value="AUD">🇦🇺 AUD</option>
+        <option value="CAD">🇨🇦 CAD</option>
+        <option value="CNY">🇨🇳 CNY</option>
+        <option value="CHF">🇨🇭 CHF</option>
+        <option value="NZD">🇳🇿 NZD</option>
+      </select>
+      <button type="submit" id="convertBtn">Convert Currency</button>
+      <button type="button" id="swapBtn">🔄 Swap</button>
+    </form>
+    <div id="result" class="result">Result will appear here</div>
+  </div>
+
+  <script>
+    // Currency background
+    const currencySymbols = ['$', '€', '£', '¥', '₹', '₩', '₽', '₪', '₫', '₴'];
+
+    function createCurrencyBackground() {
+      const background = document.getElementById('currencyBackground');
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const symbolCount = Math.floor((windowWidth * windowHeight) / 18000);
+
+      for (let i = 0; i < symbolCount; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'currency-symbol-bg';
+        symbol.textContent = currencySymbols[Math.floor(Math.random() * currencySymbols.length)];
+        symbol.style.left = Math.random() * windowWidth + 'px';
+        symbol.style.top = Math.random() * windowHeight + 'px';
+        symbol.style.fontSize = (Math.random() * 30 + 30) + 'px';
+        background.appendChild(symbol);
+      }
+    }
+
+    window.addEventListener('load', () => {
+      createCurrencyBackground();
+    });
+
+    // Conversion logic
+    const form = document.getElementById('currencyForm');
+    const amountInput = document.getElementById('amount');
+    const fromCurrency = document.getElementById('fromCurrency');
+    const toCurrency = document.getElementById('toCurrency');
+    const result = document.getElementById('result');
+    const convertBtn = document.getElementById('convertBtn');
+    const swapBtn = document.getElementById('swapBtn');
+
+    swapBtn.addEventListener('click', () => {
+      const temp = fromCurrency.value;
+      fromCurrency.value = toCurrency.value;
+      toCurrency.value = temp;
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const amount = parseFloat(amountInput.value);
+      const from = fromCurrency.value;
+      const to = toCurrency.value;
+
+      if (!amount || amount <= 0) {
+        result.textContent = 'Please enter a valid amount';
+        result.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5253)';
+        return;
+      }
+
+      if (from === to) {
+        result.textContent = `${amount.toFixed(2)} ${from}`;
+        result.style.background = 'linear-gradient(135deg, #4ecdc4, #44a08d)';
+        return;
+      }
+
+      convertBtn.textContent = 'Converting...';
+
+      try {
+        const res = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`);
+        const data = await res.json();
+        const converted = data.rates[to];
+
+        if (!converted) {
+          result.textContent = 'Conversion failed';
+          result.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5253)';
+          return;
+        }
+
+        const fromFlag = fromCurrency.options[fromCurrency.selectedIndex].text.split(' ')[0];
+        const toFlag = toCurrency.options[toCurrency.selectedIndex].text.split(' ')[0];
+
+        result.textContent = `${fromFlag} ${amount.toFixed(2)} ${from} = ${toFlag} ${converted.toFixed(2)} ${to}`;
+        result.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+      } catch (err) {
+        result.textContent = 'Error fetching rates';
+        result.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5253)';
+      } finally {
+        convertBtn.textContent = 'Convert Currency';
+      }
+    });
+  </script>
+</body>
+</html>
